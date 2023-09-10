@@ -1,83 +1,57 @@
-import { useEffect, useState } from "react"
-import ProductCard from "./component/ProductCard";
-import './App.css'
+import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
+// import Data from "./Data";
+import Loading from "./Loading";
+import Tours from './Tours'
+const url = 'https://course-api.com/react-tours-project'
 
-function App(){
-    const[products,updateProducts]= useState([]);
-
-    useEffect( () =>{
-        getProducts()
-    },
-    []
-
-    )
-    async function getProducts(){
-        const res = await fetch('https://fakestoreapi.com/products')
-        
-        const productList= await res.json();
-        updateProducts(productList)
-       
+function App() {
+    const [loading, setLoading] = useState(true)
+    const [tours, setTours] = useState([])
+  
+    const removeTour = (id) => {
+      const newTours = tours.filter((tour) => tour.id !== id)
+      setTours(newTours)
     }
-    if(products.length === 0){
-        return(<h1>Fetching data...</h1>)
+  
+    const fetchTours = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch(url)
+        const tours = await response.json()
+        setLoading(false)
+        setTours(tours)
+      } catch (error) {
+        setLoading(false)
+        console.log(error)
+      }
     }
-    return(
-        // products.map((p)=><productCard {...p} ></productCard>)
-        <div className="product-list">
-        {
-            products.map((p)=><ProductCard {...p} key={p.id}></ProductCard>)
-        }
-            
-
-        </div>
+    useEffect(() => {
+      fetchTours()
+    }, [])
+    if (loading) {
+      return (
+        <main>
+          <Loading />
+        </main>
+      )
+    }
+    if (tours.length === 0) {
+      return (
+        <main>
+          <div className='title'>
+            <h2>no tours left</h2>
+            <button className='btn' onClick={() => fetchTours()}>
+              refresh
+            </button>
+          </div>
+        </main>
+      )
+    }
+    return (
+      <main>
+        <Tours tours={tours} removeTour={removeTour} />
+      </main>
     )
-}
+  }
 export default App
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React from 'react';
-
-
-
-
-
-
-
-// import Product from './Product';
-// import Hello from './component/Hello'
-
-// const App=()=>{
-//     // const Data = {
-//     //     id:1,
-//     //     name:"Lenovo",
-//     //     model:"Notepad 5",
-//     //     price:17000,
-//     //     offerprice:15000
-//     // }
-    
-//     return(
-//     //   <Product id={Data.id} name={Data.name} model={Data.model} price={Data.price} offerprice={Data.offerprice}/>
-//     //  <Product {...Data}/>
-//     <Hello/>
- 
-//   )
-// }
-// export default App
-// // function play(a,b){
-// //     return a+b
-// // }
-// // console.log(play(3,4))
-// // console.log(play(10,20))
-// // console.log(play(13,14))
